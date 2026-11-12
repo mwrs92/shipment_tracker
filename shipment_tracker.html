@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f5f7fb">
+  <title>Northstar Logistics | Shipment Overview</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17243a;
+      --muted: #748198;
+      --line: #e8edf4;
+      --surface: #ffffff;
+      --canvas: #f5f7fb;
+      --blue: #315ee8;
+      --blue-soft: #edf2ff;
+      --green: #14845f;
+      --green-soft: #e8f7f1;
+      --amber: #a45b08;
+      --amber-soft: #fff4df;
+      --red: #bd3b46;
+      --red-soft: #fff0f0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--canvas);
+      color: var(--ink);
+    }
+
+    button,
+    select {
+      font: inherit;
+    }
+
+    .topbar {
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 0 clamp(20px, 5vw, 72px);
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 15px;
+      font-weight: 750;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: var(--blue);
+      color: white;
+    }
+
+    .topbar-note {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    main {
+      width: min(1120px, calc(100% - 40px));
+      margin: 42px auto 64px;
+    }
+
+    .page-heading {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--blue);
+      font-size: 11px;
+      font-weight: 750;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(26px, 4vw, 34px);
+      letter-spacing: -0.045em;
+      line-height: 1.15;
+    }
+
+    .subtitle {
+      margin: 9px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .updated {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-bottom: 4px;
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #27a879;
+      box-shadow: 0 0 0 3px #e1f5ed;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .metric {
+      min-height: 126px;
+      padding: 19px 20px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: 0 2px 8px rgb(22 39 68 / 3%);
+    }
+
+    .metric-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .metric-icon {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .metric-icon.green {
+      color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .metric-icon.amber {
+      color: var(--amber);
+      background: var(--amber-soft);
+    }
+
+    .metric-icon.red {
+      color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .metric-value {
+      margin-top: 12px;
+      font-size: 29px;
+      font-weight: 750;
+      letter-spacing: -0.05em;
+      line-height: 1;
+    }
+
+    .panel {
+      overflow: hidden;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: 0 2px 8px rgb(22 39 68 / 3%);
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 20px 22px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+    }
+
+    .panel-description {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .filter-group select {
+      min-width: 138px;
+      padding: 9px 32px 9px 11px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .filter-group select:focus-visible,
+    button:focus-visible {
+      outline: 3px solid #b9c9ff;
+      outline-offset: 2px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    thead {
+      background: #fafbfd;
+    }
+
+    th {
+      padding: 12px 17px;
+      color: #8590a3;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
+    td {
+      padding: 15px 17px;
+      border-top: 1px solid #f0f2f6;
+      color: #4a5870;
+      font-size: 12px;
+    }
+
+    tbody tr {
+      transition: background-color 140ms ease;
+    }
+
+    tbody tr:hover {
+      background: #fafbfd;
+    }
+
+    tbody tr.delayed-row {
+      background: #fff9f9;
+      box-shadow: inset 3px 0 0 var(--red);
+    }
+
+    tbody tr.delayed-row:hover {
+      background: var(--red-soft);
+    }
+
+    .shipment-id {
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .supplier {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .route {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #59677d;
+    }
+
+    .route-arrow {
+      color: #a4adbb;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 9px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 650;
+    }
+
+    .status::before {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      content: "";
+    }
+
+    .status.in-transit {
+      color: #315ee8;
+      background: var(--blue-soft);
+    }
+
+    .status.delayed {
+      color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .status.delivered {
+      color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .empty-state {
+      padding: 36px 20px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .panel-footer {
+      padding: 13px 22px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    @media (max-width: 760px) {
+      main {
+        margin-top: 30px;
+      }
+
+      .metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .page-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .topbar {
+        height: 62px;
+        padding-inline: 18px;
+      }
+
+      .topbar-note {
+        display: none;
+      }
+
+      main {
+        width: calc(100% - 28px);
+        margin-top: 25px;
+      }
+
+      .metric {
+        min-height: 112px;
+        padding: 15px;
+      }
+
+      .metric-value {
+        font-size: 26px;
+      }
+
+      .panel-header {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 17px;
+      }
+
+      .filter-group {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .filter-group select {
+        flex: 1;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
+          <path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5v-9Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+          <path d="m3.5 7.8 8.5 4.4 8.5-4.4M12 12.2V21" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      Northstar Logistics
+    </div>
+    <div class="topbar-note">Operations workspace</div>
+  </header>
+
+  <main>
+    <section class="page-heading" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">Supply chain visibility</p>
+        <h1 id="page-title">Shipment overview</h1>
+        <p class="subtitle">A clear view of your inbound shipments and delivery health.</p>
+      </div>
+      <div class="updated"><span class="live-dot" aria-hidden="true"></span>Sample data · Updated just now</div>
+    </section>
+
+    <section class="metrics" aria-label="Shipment summary">
+      <article class="metric">
+        <div class="metric-top">
+          <span class="metric-label">Total shipments</span>
+          <span class="metric-icon" aria-hidden="true">▤</span>
+        </div>
+        <div class="metric-value" id="total-count">0</div>
+      </article>
+      <article class="metric">
+        <div class="metric-top">
+          <span class="metric-label">In transit</span>
+          <span class="metric-icon" aria-hidden="true">↗</span>
+        </div>
+        <div class="metric-value" id="transit-count">0</div>
+      </article>
+      <article class="metric">
+        <div class="metric-top">
+          <span class="metric-label">Delayed</span>
+          <span class="metric-icon red" aria-hidden="true">!</span>
+        </div>
+        <div class="metric-value" id="delayed-count">0</div>
+      </article>
+      <article class="metric">
+        <div class="metric-top">
+          <span class="metric-label">Delivered</span>
+          <span class="metric-icon green" aria-hidden="true">✓</span>
+        </div>
+        <div class="metric-value" id="delivered-count">0</div>
+      </article>
+    </section>
+
+    <section class="panel" aria-labelledby="shipments-title">
+      <div class="panel-header">
+        <div>
+          <h2 class="panel-title" id="shipments-title">Recent shipments</h2>
+          <p class="panel-description">Track supplier deliveries across your network.</p>
+        </div>
+        <label class="filter-group" for="status-filter">
+          <span>Filter status</span>
+          <select id="status-filter">
+            <option value="all">All shipments</option>
+            <option value="In transit">In transit</option>
+            <option value="Delayed">Delayed</option>
+            <option value="Delivered">Delivered</option>
+          </select>
+        </label>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Shipment ID</th>
+              <th scope="col">Supplier</th>
+              <th scope="col">Route</th>
+              <th scope="col">ETA</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody id="shipment-rows"></tbody>
+        </table>
+        <div class="empty-state" id="empty-state" hidden>No shipments match this status.</div>
+      </div>
+      <div class="panel-footer" id="shipment-count" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <script>
+    // Keep dates relative to today so the sample dashboard stays current whenever it is opened.
+    function dateOffset(days) {
+      const date = new Date();
+      date.setDate(date.getDate() + days);
+      return date;
+    }
+
+    const shipments = [
+      { id: "SHP-2048", supplier: "Apex Components", origin: "Shenzhen, CN", destination: "Long Beach, US", eta: dateOffset(-2), status: "Delayed" },
+      { id: "SHP-2049", supplier: "Nordic Materials", origin: "Gothenburg, SE", destination: "Rotterdam, NL", eta: dateOffset(1), status: "In transit" },
+      { id: "SHP-2050", supplier: "Pacific Circuitry", origin: "Taipei, TW", destination: "Los Angeles, US", eta: dateOffset(3), status: "In transit" },
+      { id: "SHP-2051", supplier: "Greenfield Textiles", origin: "Chittagong, BD", destination: "Hamburg, DE", eta: dateOffset(-1), status: "Delivered" },
+      { id: "SHP-2052", supplier: "Meridian Packaging", origin: "Monterrey, MX", destination: "Dallas, US", eta: dateOffset(-1), status: "Delayed" },
+      { id: "SHP-2053", supplier: "Alpine Precision", origin: "Munich, DE", destination: "Prague, CZ", eta: dateOffset(0), status: "In transit" },
+      { id: "SHP-2054", supplier: "Coastal Components", origin: "Busan, KR", destination: "Vancouver, CA", eta: dateOffset(-3), status: "Delivered" },
+      { id: "SHP-2055", supplier: "Atlas Industrial", origin: "Birmingham, UK", destination: "Antwerp, BE", eta: dateOffset(2), status: "In transit" }
+    ];
+
+    const rows = document.getElementById("shipment-rows");
+    const filter = document.getElementById("status-filter");
+    const emptyState = document.getElementById("empty-state");
+
+    // Format ETAs consistently for the viewer's locale.
+    function formatDate(date) {
+      return new Intl.DateTimeFormat(undefined, {
+        month: "short",
+        day: "numeric",
+        year: "numeric"
+      }).format(date);
+    }
+
+    // Update the summary cards and visible table rows when the filter changes.
+    function renderShipments() {
+      const selectedStatus = filter.value;
+      const visibleShipments = selectedStatus === "all"
+        ? shipments
+        : shipments.filter((shipment) => shipment.status === selectedStatus);
+
+      document.getElementById("total-count").textContent = shipments.length;
+      document.getElementById("transit-count").textContent =
+        shipments.filter((shipment) => shipment.status === "In transit").length;
+      document.getElementById("delayed-count").textContent =
+        shipments.filter((shipment) => shipment.status === "Delayed").length;
+      document.getElementById("delivered-count").textContent =
+        shipments.filter((shipment) => shipment.status === "Delivered").length;
+
+      rows.replaceChildren();
+
+      visibleShipments.forEach((shipment) => {
+        const row = document.createElement("tr");
+        if (shipment.status === "Delayed") {
+          row.classList.add("delayed-row");
+        }
+
+        const statusClass = shipment.status.toLowerCase().replace(" ", "-");
+        row.innerHTML = `
+          <td><span class="shipment-id">${shipment.id}</span></td>
+          <td><span class="supplier">${shipment.supplier}</span></td>
+          <td><span class="route">${shipment.origin}<span class="route-arrow" aria-hidden="true">→</span>${shipment.destination}</span></td>
+          <td>${formatDate(shipment.eta)}</td>
+          <td><span class="status ${statusClass}">${shipment.status}</span></td>
+        `;
+        rows.appendChild(row);
+      });
+
+      emptyState.hidden = visibleShipments.length > 0;
+      document.getElementById("shipment-count").textContent =
+        `Showing ${visibleShipments.length} of ${shipments.length} shipments`;
+    }
+
+    filter.addEventListener("change", renderShipments);
+    renderShipments();
+  </script>
+</body>
+</html>
